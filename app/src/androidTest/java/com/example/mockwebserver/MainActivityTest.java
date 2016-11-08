@@ -3,6 +3,7 @@ package com.example.mockwebserver;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -26,22 +27,23 @@ public class MainActivityTest {
     @Rule
     public IdlingResourceTestRule idlingResourceTestRule = new IdlingResourceTestRule();
 
-    @Test
-    public void publicRepos() throws IOException {
-        MockWebServer mockWebServer = new MockWebServer();
-        mockWebServer.start();
+    @Rule
+    public MockWebServerTestRule mockWebServerTestRule = new MockWebServerTestRule();
 
+    @Before
+    public void setUp() throws Exception {
         TestMainApplication application = (TestMainApplication)
                 InstrumentationRegistry.getTargetContext().getApplicationContext();
-        application.setBaseUrl(mockWebServer.url("/").toString());
+        application.setBaseUrl(mockWebServerTestRule.mockWebServer.url("/").toString());
+    }
 
-        mockWebServer.enqueue(new MockResponse().setBody("{ \"public_repos\" : 38 }"));
+    @Test
+    public void publicRepos() throws IOException {
+        mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setBody("{ \"public_repos\" : 38 }"));
 
         activityTestRule.launchActivity(null);
 
         onView(withId(R.id.text_view)).check(matches(withText("38")));
-
-        mockWebServer.shutdown();
     }
 
 }
