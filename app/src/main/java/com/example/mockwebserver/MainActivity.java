@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
+                textView.setText(t.getClass().getSimpleName());
                 t.printStackTrace();
             }
         });

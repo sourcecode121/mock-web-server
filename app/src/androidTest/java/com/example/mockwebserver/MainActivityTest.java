@@ -10,7 +10,6 @@ import org.junit.Test;
 import java.io.IOException;
 
 import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -21,6 +20,9 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
  * Created by Anand on 08/11/2016.
  */
 public class MainActivityTest {
+
+    private static final String PUBLIC_REPOS = "{ \"public_repos\" : 38 }";
+
     @Rule
     public ActivityTestRule<MainActivity> activityTestRule = new ActivityTestRule<>(MainActivity.class, true, false);
 
@@ -39,11 +41,28 @@ public class MainActivityTest {
 
     @Test
     public void publicRepos() throws IOException {
-        mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setBody("{ \"public_repos\" : 38 }"));
+        mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setBody(PUBLIC_REPOS));
 
         activityTestRule.launchActivity(null);
 
         onView(withId(R.id.text_view)).check(matches(withText("38")));
     }
 
+    @Test
+    public void responseCode404() throws IOException {
+        mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setResponseCode(404));
+
+        activityTestRule.launchActivity(null);
+
+        onView(withId(R.id.text_view)).check(matches(withText("404")));
+    }
+
+    @Test
+    public void malformedJson() throws IOException {
+        mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setBody("Malformed Json"));
+
+        activityTestRule.launchActivity(null);
+
+        onView(withId(R.id.text_view)).check(matches(withText("IOException")));
+    }
 }
