@@ -10,11 +10,13 @@ import org.junit.Test;
 import java.io.IOException;
 
 import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Anand on 08/11/2016.
@@ -40,12 +42,15 @@ public class MainActivityTest {
     }
 
     @Test
-    public void publicRepos() throws IOException {
+    public void publicRepos() throws IOException, InterruptedException {
         mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setBody(PUBLIC_REPOS));
 
         activityTestRule.launchActivity(null);
 
         onView(withId(R.id.text_view)).check(matches(withText("38")));
+
+        RecordedRequest recordedRequest = mockWebServerTestRule.mockWebServer.takeRequest();
+        assertEquals("/users/sourcecode121", recordedRequest.getPath());
     }
 
     @Test
