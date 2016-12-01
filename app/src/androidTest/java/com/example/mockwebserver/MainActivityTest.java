@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 
@@ -43,7 +44,19 @@ public class MainActivityTest {
 
     @Test
     public void publicRepos() throws IOException, InterruptedException {
-        mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setBody(PUBLIC_REPOS));
+//        mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setBody(PUBLIC_REPOS));
+
+        // Determine the response for the request
+        Dispatcher dispatcher = new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest recordedRequest) throws InterruptedException {
+                String path = recordedRequest.getPath();
+                String[] parts = path.split("/");
+                String userName = parts[parts.length - 1];
+                return new MockResponse().setBody(PUBLIC_REPOS);
+            }
+        };
+        mockWebServerTestRule.mockWebServer.setDispatcher(dispatcher);
 
         activityTestRule.launchActivity(null);
 
