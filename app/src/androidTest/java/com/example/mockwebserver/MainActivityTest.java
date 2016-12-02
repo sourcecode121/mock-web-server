@@ -1,6 +1,5 @@
 package com.example.mockwebserver;
 
-import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -9,22 +8,20 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.RecordedRequest;
+import io.appflate.restmock.RESTMockServer;
+import io.appflate.restmock.RequestsVerifier;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.junit.Assert.assertEquals;
+import static io.appflate.restmock.utils.RequestMatchers.pathEndsWith;
+import static io.appflate.restmock.utils.RequestMatchers.pathStartsWith;
 
 /**
  * Created by Anand on 08/11/2016.
  */
 public class MainActivityTest {
-
-    private static final String PUBLIC_REPOS = "{ \"public_repos\" : 38 }";
 
     @Rule
     public ActivityTestRule<MainActivity> activityTestRule = new ActivityTestRule<>(MainActivity.class, true, false);
@@ -32,25 +29,30 @@ public class MainActivityTest {
     @Rule
     public IdlingResourceTestRule idlingResourceTestRule = new IdlingResourceTestRule();
 
-    @Rule
-    public MockWebServerTestRule mockWebServerTestRule = new MockWebServerTestRule();
-
     @Before
-    public void setUp() throws Exception {
-        TestMainApplication application = (TestMainApplication)
-                InstrumentationRegistry.getTargetContext().getApplicationContext();
-        application.setBaseUrl(mockWebServerTestRule.mockWebServer.url("/").toString());
+    public void reset() {
+        RESTMockServer.reset();
     }
 
     @Test
-    public void publicRepos() throws IOException, InterruptedException {
-        mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setBody(PUBLIC_REPOS));
+    public void publicRepos() throws IOException {
+        RESTMockServer.whenGET(pathEndsWith("sourcecode121"))
+                .thenReturnFile("users/sourcecode121.json");
 
         activityTestRule.launchActivity(null);
 
         onView(withId(R.id.text_view)).check(matches(withText("38")));
 
-        RecordedRequest recordedRequest = mockWebServerTestRule.mockWebServer.takeRequest();
-        assertEquals("/users/sourcecode121", recordedRequest.getPath());
+        RequestsVerifier.verifyGET(pathStartsWith("/users/sourcecode121")).invoked();
+    }
+
+    @Test
+    public void status404() throws IOException {
+        RESTMockServer.whenGET(pathEndsWith("sourcecode121"))
+                .thenReturnEmpty(404);
+
+        activityTestRule.launchActivity(null);
+
+        onView(withId(R.id.text_view)).check(matches(withText("404")));
     }
 }

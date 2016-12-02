@@ -4,11 +4,13 @@ import android.app.Application;
 import android.content.Context;
 import android.support.test.runner.AndroidJUnitRunner;
 
+import io.appflate.restmock.android.RESTMockTestRunner;
+
 /**
  * Created by Anand on 08/11/2016.
  */
 
-public class CustomTestRunner extends AndroidJUnitRunner {
+public class CustomTestRunner extends RESTMockTestRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {

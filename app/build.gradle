@@ -35,4 +35,6 @@ dependencies {
         exclude group: 'com.android.support'
     })
     androidTestCompile 'com.squareup.okhttp3:mockwebserver:3.4.2'
+
+    androidTestCompile 'com.github.andrzejchm.RESTMock:android:0.1.4'
 }
