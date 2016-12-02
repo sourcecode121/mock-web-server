@@ -44,19 +44,7 @@ public class MainActivityTest {
 
     @Test
     public void publicRepos() throws IOException, InterruptedException {
-//        mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setBody(PUBLIC_REPOS));
-
-        // Determine the response for the request
-        Dispatcher dispatcher = new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest recordedRequest) throws InterruptedException {
-                String path = recordedRequest.getPath();
-                String[] parts = path.split("/");
-                String userName = parts[parts.length - 1];
-                return new MockResponse().setBody(PUBLIC_REPOS);
-            }
-        };
-        mockWebServerTestRule.mockWebServer.setDispatcher(dispatcher);
+        mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setBody(PUBLIC_REPOS));
 
         activityTestRule.launchActivity(null);
 
@@ -64,23 +52,5 @@ public class MainActivityTest {
 
         RecordedRequest recordedRequest = mockWebServerTestRule.mockWebServer.takeRequest();
         assertEquals("/users/sourcecode121", recordedRequest.getPath());
-    }
-
-    @Test
-    public void responseCode404() throws IOException {
-        mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setResponseCode(404));
-
-        activityTestRule.launchActivity(null);
-
-        onView(withId(R.id.text_view)).check(matches(withText("404")));
-    }
-
-    @Test
-    public void malformedJson() throws IOException {
-        mockWebServerTestRule.mockWebServer.enqueue(new MockResponse().setBody("Malformed Json"));
-
-        activityTestRule.launchActivity(null);
-
-        onView(withId(R.id.text_view)).check(matches(withText("IOException")));
     }
 }
