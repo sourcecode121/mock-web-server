@@ -4,6 +4,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import okhttp3.internal.tls.SslClient;
 import okhttp3.mockwebserver.MockWebServer;
 
 /**
@@ -19,6 +20,7 @@ public class MockWebServerTestRule implements TestRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
+                mockWebServer.useHttps(SslClient.localhost().socketFactory, false);
                 mockWebServer.start();
                 base.evaluate();
                 mockWebServer.shutdown();

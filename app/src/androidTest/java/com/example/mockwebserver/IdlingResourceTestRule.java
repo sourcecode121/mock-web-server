@@ -9,6 +9,8 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import okhttp3.internal.tls.SslClient;
+
 /**
  * Created by Anand on 08/11/2016.
  */
@@ -19,7 +21,11 @@ public class IdlingResourceTestRule implements TestRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                IdlingResource idlingResource = OkHttp3IdlingResource.create("okhttp", OkHttp.getInstance());
+                IdlingResource idlingResource = OkHttp3IdlingResource.create("okhttp",
+                        OkHttp.getInstance(
+                                SslClient.localhost().socketFactory,
+                                SslClient.localhost().trustManager
+                        ));
                 Espresso.registerIdlingResources(idlingResource);
                 base.evaluate();
                 Espresso.unregisterIdlingResources(idlingResource);
